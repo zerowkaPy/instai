@@ -1,0 +1,15 @@
+[project]
+name = "instabot"
+version = "0.1.0"
+description = "Instagram bot framework"
+requires-python = ">=3.12"
+
+dependencies = [
+    "httpx==0.28.1",
+    "redis==8.0.1",
+    "rich==15.0.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

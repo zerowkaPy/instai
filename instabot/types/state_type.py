@@ -1,0 +1,1 @@
+type StateType = str | None
