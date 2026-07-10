@@ -1,8 +1,3 @@
-import json
-
-from redis.asyncio.connection import ConnectionPool
-from redis.asyncio import Redis
-
 from ...types.state_type import StateType
 from ...types.bot_status import OPEN, CLOSED
 from .base_storage import BaseStorage
@@ -13,58 +8,50 @@ from ...utils.storage_keys import (
     )
 
 
-class RedisStorage(BaseStorage):
-    def __init__(self, url: str, **kwargs):
-        pool = ConnectionPool.from_url(url=url, **kwargs)
-        self.client = Redis.from_pool(pool)
+class MemoryStorage(BaseStorage):
+    def __init__(self):
+        self.state = {}
+        self.data = {}
+        self.status = {}
 
     async def set_state(self, key: str, state: StateType = None):
         key = get_state_key(key)
-        if state is None:
-            state = "null"
-        await self.client.set(key, state, ex=86_400)
+        self.state[key] = state
 
     async def get_state(self, key: str) -> StateType:
         key = get_state_key(key)
-        state = await self.client.get(key)
-        if isinstance(state, (bytes, bytearray)):
-            state = state.decode("utf-8")
-        if state == "null":
-            state = None
-        return state #type: ignore
+        state = self.state.get(key)
+        return state
     
     async def set_data(self, key: str, data: dict):
         key = get_data_key(key)
-        await self.client.set(key, json.dumps(data), ex=86_400)
+        self.data[key] = data
 
     async def get_data(self, key: str) -> dict:
         key = get_data_key(key)
-        data = await self.client.get(key)
+        data = self.data.get(key)
         if data is None:
             return {}
-        if isinstance(data, bytes):
-            data = data.decode("utf-8")
-        return json.loads(data)
+        return data
 
     async def update_data(self, key: str, data: dict):
         current = await self.get_data(key)
-        if not isinstance(current, dict):
-            current = {}
         current.update(data)
         await self.set_data(key, current)
 
     async def clear(self, key: str):
         state_key = get_state_key(key)
         data_key = get_data_key(key)
-        await self.client.delete(state_key, data_key)
+        self.state.pop(state_key, None)
+        self.data.pop(data_key, None)
 
     async def lock(self, key: str) -> None:
         key = get_status_key(key)
-        await self.client.set(key, CLOSED, ex=86_400)
-    
+        self.status[key] = CLOSED
+
     async def unlock(self, key: str) -> None:
         key = get_status_key(key)
-        await self.client.set(key, OPEN, ex=86_400)
+        self.status[key] = OPEN
 
     async def is_locked(self, key: str) -> bool:
         status = await self.get_bot_status(key)
@@ -74,9 +61,5 @@ class RedisStorage(BaseStorage):
         
     async def get_bot_status(self, key: str):
         key = get_status_key(key)
-        status = await self.client.get(key)
-        if status is None:
-            return OPEN
-        elif isinstance(status, bytes):
-            status = status.decode("utf-8")
+        status = self.status.get(key, OPEN)
         return status

@@ -1,14 +1,13 @@
 from typing import TYPE_CHECKING
-import pprint
 
 from ..http_client import client
 from ..types.card import Card
 from ..logging import logger
 
 if TYPE_CHECKING:
-    from ..bot import InstaBot
+    from ..bot import Instai
 
-async def send_cards_(cards: list[Card], bot: InstaBot, user_id: int):
+async def send_cards_(cards: list[Card], bot: Instai, user_id: int):
     if user_id == bot.my_id:
         return
     headers = {

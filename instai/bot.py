@@ -1,11 +1,12 @@
-from .fsm.storages.redis_storage import RedisStorage
+from .fsm.storages.base_storage import BaseStorage
+from .fsm.storages import MemoryStorage
 
-class InstaBot:
+class Instai:
     def __init__(
         self,
         access_token: str,
         ig_id: str,
-        storage: RedisStorage):
+        storage: BaseStorage = MemoryStorage()):
 
         self.token = access_token
         self.my_id = ig_id

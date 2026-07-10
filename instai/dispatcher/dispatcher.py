@@ -1,6 +1,6 @@
 from typing import Any, Callable
 
-from ..bot import InstaBot
+from ..bot import Instai
 from ..parser.parser import WebhookParser
 from ..filters import FilterObj
 from ..handler import HandlerObject
@@ -8,11 +8,11 @@ from ..types.message import Message
 from ..types.callback import Callback
 from ..types.content_type import ContentType
 from ..fsm.fsmcontext import FSMContext
+from ..injector import injector
 from ..logging import logger
 
 class Dispatcher:
-
-    def __init__(self, bot: InstaBot):
+    def __init__(self, bot: Instai):
         self.bot = bot
         self.messages_handlers: list[HandlerObject] = []
         self.callback_handlers: list[HandlerObject] = []
@@ -57,10 +57,19 @@ class Dispatcher:
         
         for handler in handlers:
             check_filter = await handler.execute_filters(content, fsmcontext)
+
             if check_filter:
-                if await fsmcontext._status_permission(handler.callback):
-                    await handler.execute(content, fsmcontext)
-                    return logger.info(f"update {str(content)} id {content.id} is handled user_id={content.user_id} bot_id={self.bot.my_id}")
+                if injector.need_unlock(handler.callback):
+                    await self.bot.storage.unlock(fsmcontext.key)
+                elif await self.bot.storage.is_locked(fsmcontext.key):
+                        return
+                
+                await handler.execute(content, fsmcontext)
+
+                if injector.need_lock(handler.callback):
+                    await self.bot.storage.lock(fsmcontext.key)
+                return logger.info(f"update {str(content)} id {content.id} is handled user_id={content.user_id} bot_id={self.bot.my_id}")
+            
         return logger.info(f"update {content.id} is not handled user_id={content.user_id} bot_id={self.bot.my_id}")
                 
 
@@ -71,5 +80,5 @@ class Dispatcher:
             return logger.error("update was not parsed correctly")
         if content.is_echo:
             return logger.info(f"echo update\U0001F634 {content.id} user_id {content.user_id} bot_id {self.bot.my_id}")
-        fsmcontext = FSMContext(self.bot.storage.client, content.user_id)
+        fsmcontext = FSMContext(self.bot.storage, content.user_id)
         await self._process_update(content, fsmcontext)

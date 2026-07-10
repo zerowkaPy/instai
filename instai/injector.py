@@ -48,3 +48,21 @@ class Injector:
                     param,
                     kwargs)
         return kwargs
+    
+    def need_lock(self, func: Callable):
+        sig = inspect.signature(func)
+        for param in sig.parameters.values():
+            if param.name == "lock":
+                if param.default is True:
+                    return True
+        return False
+    
+    def need_unlock(self, func: Callable):
+        sig = inspect.signature(func)
+        for param in sig.parameters.values():
+            if param.name == "unlock":
+                if param.default is True:
+                    return True
+        return False
+    
+injector = Injector()

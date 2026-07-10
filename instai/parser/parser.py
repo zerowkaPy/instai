@@ -8,14 +8,14 @@ from ..types.callback import Callback
 
 class WebhookParser:
     if TYPE_CHECKING:
-        from ..bot import InstaBot
-        bot: InstaBot
+        from ..bot import Instai
+        bot: Instai
 
     @classmethod
     def _resolve_postback(
         cls,
         *,
-        bot: InstaBot,
+        bot: Instai,
         postback: dict[str, Any],
         webhook: WebhookT,
         messaging: MessagingT):
@@ -41,7 +41,7 @@ class WebhookParser:
     def _resolve_message(
         cls,
         *,
-        bot: InstaBot,
+        bot: Instai,
         message: dict[str, Any],
         webhook: WebhookT,
         messaging: MessagingT) -> Message:
@@ -95,7 +95,7 @@ class WebhookParser:
                 messaging=messaging)
     
     @classmethod
-    def resolve(cls, bot: InstaBot, request: dict[str, Any]) -> ContentType | None:
+    def resolve(cls, bot: Instai, request: dict[str, Any]) -> ContentType | None:
         webhook = cls._resolve_webhook(request)
         if webhook:
             if webhook.messaging:

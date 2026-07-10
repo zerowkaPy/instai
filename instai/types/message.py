@@ -3,10 +3,10 @@ from typing import TYPE_CHECKING
 from .content import Content
 
 if TYPE_CHECKING:
-    from ..bot import InstaBot
+    from ..bot import Instai
     
 class Message(Content):
-    bot: InstaBot
+    bot: Instai
     time: int
     id: int
     user_id: int
@@ -19,7 +19,7 @@ class Message(Content):
     def __init__(
         self,
         *,
-        bot: InstaBot,
+        bot: Instai,
         time: int,
         id: int,
         user_id: int,

@@ -4,9 +4,9 @@ from ..http_client import client
 from ..logging import logger
 
 if TYPE_CHECKING:
-    from ..bot import InstaBot
+    from ..bot import Instai
 
-async def send_message_(text: str, bot: InstaBot, user_id: int):
+async def send_message_(text: str, bot: Instai, user_id: int):
     if user_id == bot.my_id:
         return
     headers = {

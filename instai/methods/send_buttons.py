@@ -5,9 +5,9 @@ from ..logging import logger
 from ..types.button import Button
 
 if TYPE_CHECKING:
-    from ..bot import InstaBot
+    from ..bot import Instai
 
-async def send_buttons_(text: str, buttons: list[Button], bot: InstaBot, user_id: int):
+async def send_buttons_(text: str, buttons: list[Button], bot: Instai, user_id: int):
     if len(buttons) > 3:
         return logger.error(
             "Failed to send buttons: Instagram allows a maximum of 3 buttons per message. "
@@ -37,29 +37,3 @@ async def send_buttons_(text: str, buttons: list[Button], bot: InstaBot, user_id
     if response.is_error:
         if response.is_error:
             logger.error(f"Error in send_buttons {response.json()}")
-
-# curl -X POST -H "Content-Type: application/json" -d '{
-#   "recipient":{
-#     "id":"<IGSID>"
-#   },
-#   "message":{
-#     "attachment":{
-#       "type":"template",
-#       "payload":{
-#         "template_type":"button",
-#         "text":"What do you want to do next?",
-#         "buttons":[
-#           {
-#             "type":"web_url",
-#             "url":"https://www.instagram.com",
-#             "title":"Visit Instagram",
-#           }, {
-#             "type":"postback",
-#             "payload":"postback_payload",
-#             "title":"postback button",
-#           }
-#         ]
-#       }
-#     }
-#   }
-# }' "https://graph.instagram.com/v20.0/me/messages?access_token=INSTAGRAM_ACCESS_TOKEN"

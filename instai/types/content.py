@@ -8,10 +8,10 @@ from .button import Button
 from ..methods.send_buttons import send_buttons_
 
 if TYPE_CHECKING:
-    from ..bot import InstaBot
+    from ..bot import Instai
 
 class Content(Protocol):
-    bot: InstaBot
+    bot: Instai
     time: int
     id: int
     user_id: int
